@@ -1,0 +1,30 @@
+SELECT distinct p.id as plan, 
+lower(fac.name) as city,
+lower(faz.name) as zone,
+lower(fak.name) keyword,
+p.cost 
+FROM payment.plans p 
+INNER JOIN payment.fabric_ad_zone_plans fazp 
+ON fazp.id = p.id 
+INNER JOIN payment.fabric_ad_zones faz 
+ON fazp.fabric_ad_zone_id = faz.id 
+INNER JOIN payment.fabric_ad_cities fac 
+ON faz.city_id = fac.id 
+INNER JOIN payment.fabric_ad_keywords fak 
+ON fazp.fabric_ad_keyword_id = fak.id 
+WHERE p.buyable = 1 
+AND fazp.category IS NULL 
+AND  fac.id NOT IN (38,777,776) 
+AND fazp.fabric_ad_code 
+NOT IN 
+(SELECT fazzp.fabric_ad_code 
+FROM payment.subscriptions ss 
+INNER JOIN payment.plans pp 
+ON ss.plan_id = pp.id 
+INNER JOIN payment.fabric_ad_zone_plans fazzp 
+ON fazzp.id = pp.id 
+WHERE ss.revoked = 0 
+AND '2016-06-03' - ss.start_date <= ss.duration_days 
+AND ss.start_date <= '2016-06-03' 
+AND pp.type = 'fabric_ad_zone_plan') 
+order by fac.name, faz.name, fak.name, cost
